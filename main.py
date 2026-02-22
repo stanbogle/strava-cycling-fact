@@ -28,8 +28,8 @@ async def get_access_token() -> str:
         return r.json()["access_token"]
 
 
-# --- Claude API: get a cycling fact for today ---
-async def get_cycling_fact() -> str:
+# --- Claude API: get a sport fact for today ---
+async def get_sport_fact(sport: str = "cycling") -> str:
     today = date.today().strftime("%B %-d")   # e.g. "February 21"
     async with httpx.AsyncClient() as client:
         r = await client.post(
@@ -43,7 +43,7 @@ async def get_cycling_fact() -> str:
                 "model":      "claude-sonnet-4-20250514",
                 "max_tokens": 100,
                 "messages":   [{"role": "user", "content":
-                    f"Give me one interesting cycling history fact for {today}. "
+                    f"Give me one interesting {sport} history fact for {today}. "
                     f"Maximum 20 words. Just the fact, no preamble."
                 }],
             },
@@ -90,9 +90,31 @@ async def receive_webhook(request: Request):
     activity_id = body["object_id"]
 
     try:
-        fact = await get_cycling_fact()
+        token = await get_access_token()
+
+        # Fetch full activity to check type
+        async with httpx.AsyncClient() as client:
+            r = await client.get(
+                f"https://www.strava.com/api/v3/activities/{activity_id}",
+                headers={"Authorization": f"Bearer {token}"},
+            )
+            r.raise_for_status()
+            activity = r.json()
+
+        activity_type = activity.get("sport_type", "")
+        print(f"Activity type: {activity_type}")
+
+        running_types = ("Run", "TrailRun", "VirtualRun")
+        if activity_type in running_types:
+            sport = "running"
+            emoji = "🏃"
+        else:
+            sport = "cycling"
+            emoji = "🚴"
+
+        fact = await get_sport_fact(sport)
         today = date.today().strftime("%B %-d")
-        description = f"🚴 Cycling fact ({today}): {fact}"
+        description = f"{emoji} {sport.capitalize()} fact ({today}): {fact}"
         await update_activity(activity_id, description)
         print(f"Updated activity {activity_id}: {description}")
     except Exception as e:
