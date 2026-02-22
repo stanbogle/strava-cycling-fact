@@ -100,3 +100,7 @@ async def receive_webhook(request: Request):
 
     # Always return 200 quickly — Strava will retry if you don't
     return {"status": "ok"}
+
+@app.get("/health")
+async def health():
+    return {"status": "ok"}
