@@ -101,6 +101,10 @@ async def receive_webhook(request: Request):
             r.raise_for_status()
             activity = r.json()
 
+        if activity.get("description"):
+            print(f"Activity {activity_id} already has description")
+            return {"status": "skipped"}
+            
         activity_type = activity.get("sport_type", "")
         print(f"Activity type: {activity_type}")
 
