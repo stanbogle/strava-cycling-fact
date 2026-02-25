@@ -118,7 +118,7 @@ async def receive_webhook(request: Request):
 
         fact = await get_sport_fact(sport)
         today = date.today().strftime("%B %-d")
-        description = f"{emoji} {sport.capitalize()} fact ({today}): {fact}"
+        description = f"{emoji} {sport.capitalize()} fact: {fact}"
         await update_activity(activity_id, description)
         print(f"Updated activity {activity_id}: {description}")
     except Exception as e:
