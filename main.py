@@ -43,7 +43,7 @@ async def get_sport_fact(sport: str = "cycling") -> str:
                 "model":      "claude-sonnet-4-20250514",
                 "max_tokens": 100,
                 "messages":   [{"role": "user", "content":
-                    f"Give me one interesting {sport} history fact for {today}. "
+                    f"Give me one interesting {sport} history fact for {today}. Please make it fairly Europe-centric."
                     f"Maximum 20 words. Just the fact, no preamble."
                 }],
             },
